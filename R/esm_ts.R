@@ -1,7 +1,7 @@
 library(ggplot2)
 
 esm_ts <- function(data = NULL,
-                   date_var = NULL,
+                   var_date = NULL,
                    lines = NULL,
                    outcome = NULL,
                    vis_options = list(smooth = TRUE,
@@ -15,7 +15,7 @@ esm_ts <- function(data = NULL,
 {
 
   plot <- ggplot(data,
-                 aes_string(x = date_var, y = outcome, colour = lines)) +
+                 aes_string(x = var_date, y = outcome, colour = lines)) +
     theme_minimal() +
     labs(x = "Time")
 
