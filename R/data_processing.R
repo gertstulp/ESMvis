@@ -13,8 +13,7 @@ data_processing <- function(data = NULL,
                             type_vis = "timeseries",
                             time_frame = "all",
                             sel_period = NULL,
-                            sel_period_zoom = NULL,
-                            show_events_ts = FALSE)
+                            sel_period_zoom = NULL)
 {
 
   # Checking all arguments ---------------------------
@@ -111,18 +110,65 @@ data_processing <- function(data = NULL,
     }
   }
 
-  # Filter
+  # EXPLAIN LAURA WHY DATA PROCESSING HERE
+  # OTHERWISE BOUNDARIES CANNOT BE IN DATA
+  if ( length(ID) == 2 ) {
+    data <- filter(data,
+                   data[ID[["var_ID"]]] ==  ID[["ID"]])
+  }
+
+  # SHOW LAURA
+  if ( !(type_vis %in% c("timeseries", "zoom", "network", "barchart")) ) {
+    # Error message weird format. FIX
+    stop("You haven't selected a correct type of visualisation in the
+         argument 'type_vis = ...'. Please choose from: 'timeseries',
+         'zoom', 'network', or 'barchart'")
+  }
+
   if ( !is.null(sel_period) ) {
-    if ( sel_period[1] < min(data[date_var], na.rm = TRUE) ) {
-      stop("Specified first date not within data")
-    } else if ( sel_period[2] > max(data[date_var], na.rm = TRUE) ) {
-      stop("Specified last date not within data")
+    if ( sel_period[1] < min(data[var_date], na.rm = TRUE) ) {
+      stop("First date specified in 'sel_period = ...'
+           not within (selected) data")
+    } else if ( sel_period[2] > max(data[var_date], na.rm = TRUE) ) {
+      stop("First last specified in 'sel_period = ...'
+           not within (selected) data")
     } else if (sel_period[1] > sel_period[2] ) {
-      stop("Last date earlier than first date!")
+      stop("Last date before first date in 'sel_period = ...'!")
+    }
+  }
+
+  if ( !is.null(sel_period) ) {
+    data <- filter(data,
+                   data[var_date] >= sel_period[1] &
+                   data[var_date] <= sel_period[2])
+  }
+
+  if ( !is.null(sel_period_zoom) ) {
+    if ( type_vis != "zoom") {
+      warning("Did you forget 'type_vis = 'zoom'")
+    }
+    if ( is.null(sel_period) ) {
+      if ( sel_period_zoom[1] < min(data[var_date], na.rm = TRUE) ) {
+        stop("Specified first date not within (selected) data
+             selected with 'sel_period_zoom = ...'")
+      } else if ( sel_period_zoom[2] > max(data[var_date], na.rm = TRUE) ) {
+        stop("Specified last date not within (selected) data
+             selected with 'sel_period_zoom = ...'")
+      } else if (sel_period_zoom[1] > sel_period_zoom[2] ) {
+        stop("Last date before first date
+             selected with 'sel_period_zoom = ...'!")
+      }
     } else {
-      data <- filter(data,
-                     data[date_var] >= sel_period[1] &
-                     data[date_var] <= sel_period[2])
+      if ( sel_period_zoom[1] < sel_period[1] ) {
+        stop("Specified last date in 'sel_period_zoom = ...'not within period
+             selected with 'sel_period = ...' ")
+      } else if ( sel_period_zoom[2] > sel_period[2] ) {
+        stop("Specified first date in 'sel_period_zoom = ...'not within period
+             selected with 'sel_period = ...' ")
+      } else if (sel_period_zoom[1] > sel_period_zoom[2] ) {
+        stop("Last date before first date
+             selected with 'sel_period_zoom = ...'!")
+      }
     }
   }
 
@@ -130,20 +176,10 @@ data_processing <- function(data = NULL,
   data_l <- gather(data, vars_meas,
                    key = "Name", value = "Score")
 
-  if(type_vis == "zoom") {
-    if( !is.null(sel_period_zoom) ) {
-      if( sel_period_zoom[1] < min(data_l[date_var], na.rm = TRUE) ) {
-        stop("Specified first date not within data")
-      } else if( sel_period_zoom[2] > max(data_l[date_var], na.rm = TRUE) ) {
-        stop("Specified last date not within data")
-      } else if(sel_period_zoom[1] > sel_period_zoom[2] ) {
-        stop("Last date earlier than first date!")
-      } else {
-        data_zoom <- filter(data_l,
-                       data_l[date_var] >= sel_period_zoom[1] &
-                       data_l[date_var] <= sel_period_zoom[2])
-      }
-    }
+  if ( type_vis == "zoom" && !is.null(sel_period_zoom) ) {
+    data_zoom <- filter(data_l,
+                        data_l[var_date] >= sel_period_zoom[1] &
+                        data_l[var_date] <= sel_period_zoom[2])
     return(list(data_l = data_l,
                 data_zoom = data_zoom))
   } else {

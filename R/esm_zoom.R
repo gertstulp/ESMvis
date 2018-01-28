@@ -5,13 +5,9 @@ esm_zoom <- function(data = NULL,
                      data_zoom = NULL,
                      var_date = NULL,
                      lines = NULL,
-                   outcome = NULL,
-                   vis_options = list(smooth = TRUE, point = FALSE,
-                                      line = FALSE,
-                                      kernel = NULL,
-                                      se_band = TRUE,
-                                      axis_limits = NULL),
-                   vars_events = NULL)
+                     outcome = NULL,
+                     vis_options = NULL,
+                     vars_events = NULL)
 {
 
   overall_ts <- esm_ts(data, var_date = var_date, lines = "Name",
