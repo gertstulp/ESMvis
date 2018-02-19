@@ -1,6 +1,21 @@
-# library(tidyr)
-# library(dplyr)
+#' Wrapper function to create desired visualisation.
+#'
+#' @param data A dataframe.
+#' @param var_date A string with the name of the date-variable.
+#' @param format_date A string with the format of the date (e.g., "ymd", "ymd_HM").
+#' @param vars_meas A vector of variable names that need to be visualised.
+#' @param vars_groups A vector of specific variable names that are in vars_meas.
+#' @param vars_event A vector of names of variables that describe events.
+#' @param vars_descr A vector of names of variables that describe events.
+#' @param ID A list that must contain the elements ID_var and ID; ID_var must be a string with a variable name, and ID must be a string of the unique identifier.
+#' @param type_vis The type of visualisation required; the options are "timeseries" (default), "zoom", "barchart", and "network".
+#' @param vis_options A list with visualisation options. See the functions esm_ts, esm_bc, and esm_nw for further help.
+#' @param time_frame A vector with the first and last measurement.
+#' @param sel_period A vector with the first and last measurement for selecting a specific period.
+#' @param sel_period_zoom A vector with the first and last measurement for selecting a specific period in the "zoom" graph.
+#' @return A ggplot-object/graph.
 
+#' @export
 esm_vis <- function(data = NULL,
                     var_date = NULL,
                     format_date = NULL,
@@ -44,7 +59,7 @@ data_ts <- data_process[["data_l"]]
     esm_bc(data_ts, var_date = "date_esmvis", vars_meas, bars = "Name",
            outcome = "Score", vis_options = vis_options)
   } else if (type_vis == "network") {
-    esm_bc(data_ts, var_date = "date_esmvis", vars_meas, nodes = "Name",
+    esm_nw(data_ts, var_date = "date_esmvis", vars_meas, nodes = "Name",
            outcome = "Score", vis_options = vis_options)
   }
 }

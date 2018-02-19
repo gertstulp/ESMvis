@@ -2,6 +2,26 @@
 # library(dplyr)
 # library(lubridate)
 
+#' Process data before visualisation.
+#'
+#' @param data A dataframe.
+#' @param var_date A string with the name of the date-variable.
+#' @param format_date A string with the format of the date (e.g., "ymd", "ymd_HM").
+#' @param vars_meas A vector of variable names that need to be visualised.
+#' @param vars_groups A vector of specific variable names that are in vars_meas.
+#' @param vars_event A vector of names of variables that describe events.
+#' @param vars_descr A vector of names of variables that describe events.
+#' @param ID A list that must contain the elements ID_var and ID; ID_var must be a string with a variable name, and ID must be a string of the unique identifier.
+#' @param type_vis The type of visualisation required; the options are "timeseries" (default), "zoom", "barchart", and "network".
+#' @param time_frame A vector with the first and last measurement.
+#' @param sel_period A vector with the first and last measurement for selecting a specific period.
+#' @param sel_period_zoom A vector with the first and last measurement for selecting a specific period in the "zoom" graph.
+#' @return A list with one or two dataframes for visualisation.
+#' @importFrom tidyr gather
+#' @importFrom dplyr filter
+#' @importFrom lubridate parse_date_time
+
+#' @export
 data_processing <- function(data = NULL,
                             var_date = NULL,
                             format_date = NULL,
@@ -35,7 +55,8 @@ data_processing <- function(data = NULL,
               Use argument 'format_date = ...' to specify")
       data$date_esmvis <- 1:nrow(data)
     } else {
-      data$date_esmvis <- parse_date_time(data[[var_date]], format_date)
+      data$date_esmvis <- lubridate::parse_date_time(data[[var_date]],
+                                                     format_date)
     }
   }
 
@@ -116,8 +137,8 @@ data_processing <- function(data = NULL,
   # EXPLAIN LAURA WHY DATA PROCESSING HERE
   # OTHERWISE BOUNDARIES CANNOT BE IN DATA
   if ( length(ID) == 2 ) {
-    data <- filter(data,
-                   data[ID[["var_ID"]]] ==  ID[["ID"]])
+    data <- dplyr::filter(data,
+                          data[ID[["var_ID"]]] ==  ID[["ID"]])
   }
 
   # SHOW LAURA
@@ -141,9 +162,9 @@ data_processing <- function(data = NULL,
   }
 
   if ( !is.null(sel_period) ) {
-    data <- filter(data,
-                   data[var_date] >= sel_period[1] &
-                   data[var_date] <= sel_period[2])
+    data <- dplyr::filter(data,
+                          data[var_date] >= sel_period[1] &
+                          data[var_date] <= sel_period[2])
   }
 
   if ( !is.null(sel_period_zoom) ) {
@@ -176,13 +197,13 @@ data_processing <- function(data = NULL,
   }
 
   # From wide to long
-  data_l <- gather(data, vars_meas,
-                   key = "Name", value = "Score")
+  data_l <- tidyr::gather(data, vars_meas,
+                          key = "Name", value = "Score")
 
   if ( type_vis == "zoom" && !is.null(sel_period_zoom) ) {
-    data_zoom <- filter(data_l,
-                        data_l[var_date] >= sel_period_zoom[1] &
-                        data_l[var_date] <= sel_period_zoom[2])
+    data_zoom <- dplyr::filter(data_l,
+                              data_l[var_date] >= sel_period_zoom[1] &
+                              data_l[var_date] <= sel_period_zoom[2])
     return(list(data_l = data_l,
                 data_zoom = data_zoom))
   } else {
