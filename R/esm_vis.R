@@ -1,5 +1,5 @@
-library(tidyr)
-library(dplyr)
+# library(tidyr)
+# library(dplyr)
 
 esm_vis <- function(data = NULL,
                     var_date = NULL,
@@ -42,6 +42,9 @@ data_ts <- data_process[["data_l"]]
            outcome = "Score", vis_options = vis_options)
   } else if (type_vis == "barchart") {
     esm_bc(data_ts, var_date = "date_esmvis", vars_meas, bars = "Name",
+           outcome = "Score", vis_options = vis_options)
+  } else if (type_vis == "network") {
+    esm_bc(data_ts, var_date = "date_esmvis", vars_meas, nodes = "Name",
            outcome = "Score", vis_options = vis_options)
   }
 }

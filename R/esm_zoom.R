@@ -1,5 +1,5 @@
-library(ggplot2)
-library(patchwork)
+# library(ggplot2)
+library(patchwork) # Needs to be added to Description still
 
 esm_zoom <- function(data = NULL,
                      data_zoom = NULL,

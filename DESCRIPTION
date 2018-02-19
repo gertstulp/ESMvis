@@ -1,9 +1,19 @@
 Package: ESMvis
 Title: Visualising Experience Sampling Method Data
 Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: Visualise intensive longitudinal data.
+Authors@R: c(
+    person("Stulp", "Gert", email = "g.stulp@rug.nl", role = c("aut", "cre")),
+    person("Bringmann", "Laura", email = "l.f.bringmann@rug.nl ", 
+           role = c("aut")))
+Description: This package provides several ways to visualise experience
+    sampling method data. Given data consisting of repeated measurement, 
+    timelines, networks, and barcharts can be plotted to get a better insight
+    into the changes over time. It relies heavily on ggplot2.
 Depends: R (>= 3.4.2)
-License: What license is it under?
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
+Imports: dplyr,
+    ggplot2,
+    tidyr,
+    lubridate

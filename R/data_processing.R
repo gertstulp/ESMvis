@@ -1,6 +1,6 @@
-library(tidyr)
-library(dplyr)
-library(lubridate)
+# library(tidyr)
+# library(dplyr)
+# library(lubridate)
 
 data_processing <- function(data = NULL,
                             var_date = NULL,
@@ -102,6 +102,9 @@ data_processing <- function(data = NULL,
                Use 'list(var_ID = ..., ID = ...)' for specification.")
       } else if ( is.null(ID[["var_ID"]]) && !is.null(ID[["ID"]]) ) {
         stop("ID/person specified, but not the name of the ID-variable.
+             Use 'list(var_ID = ..., ID = ...)' for specification.")
+      } else if ( is.null(ID[["var_ID"]]) && is.null(ID[["ID"]]) ) {
+        stop("Both ID and var_ID are NULL.
              Use 'list(var_ID = ..., ID = ...)' for specification.")
       }
     } else {

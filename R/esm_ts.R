@@ -1,4 +1,4 @@
-library(ggplot2)
+# library(ggplot2)
 
 esm_ts <- function(data = NULL,
                    var_date = NULL,
@@ -12,7 +12,10 @@ esm_ts <- function(data = NULL,
     theme_minimal() +
     labs(x = "Time")
 
-  if ( length(vis_options) != 0 ) {
+  # SHOW LAURA DEFAULT IS LINE
+  if ( length(vis_options) == 0 ) {
+    plot <- plot + geom_smooth(se = FALSE)
+  } else if ( length(vis_options) != 0 ) {
     if ( !is.null(vis_options[["line"]]) && vis_options[["line"]] == TRUE ) {
       plot <- plot + geom_line()
     }
