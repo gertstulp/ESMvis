@@ -32,7 +32,7 @@ esm_ts <- function(data = NULL,
 
   # SHOW LAURA DEFAULT IS LINE
   if ( length(vis_options) == 0 ) {
-    plot <- plot + geom_smooth(se = FALSE)
+    plot <- plot + geom_smooth(se = FALSE, kernel = 0.25)
   } else if ( length(vis_options) != 0 ) {
     if ( !is.null(vis_options[["line"]]) && vis_options[["line"]] == TRUE ) {
       plot <- plot + geom_line()

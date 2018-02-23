@@ -47,7 +47,6 @@ data_process <- data_processing(
 
 data_ts <- data_process[["data_l"]]
 
-# SHOW LAURA!!
   if (type_vis == "timeseries") {
     esm_ts(data_ts, var_date = "date_esmvis", lines = "Name",
            outcome = "Score", vis_options = vis_options)
@@ -59,7 +58,7 @@ data_ts <- data_process[["data_l"]]
     esm_bc(data_ts, var_date = "date_esmvis", vars_meas, bars = "Name",
            outcome = "Score", vis_options = vis_options)
   } else if (type_vis == "network") {
-    esm_nw(data_ts, var_date = "date_esmvis", vars_meas, nodes = "Name",
-           outcome = "Score", vis_options = vis_options)
+    esm_nw(data_ts, var_date = "date_esmvis", vars_meas, vars_groups,
+           nodes = "Name", outcome = "Score", vis_options = vis_options)
   }
 }

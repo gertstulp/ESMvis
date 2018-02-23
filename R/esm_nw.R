@@ -1,40 +1,79 @@
 # library(ggplot2)
-
-#' Wrapper function to create barchart for each date / measurement.
+library(dplyr)
+#' Wrapper function to create network for each date / measurement.
 #'
 #' @param data A dataframe.
 #' @param var_date A string with the name of the date-variable for the different facets.
-#' @param var_meas A vector with strings of variable names that determines order of x-axis.
-#' @param nodes A string with name of variable specifying the different groups which will be represented as different lines.
+#' @param vars_meas A vector with strings of variable names that determines order of x-axis.
+#' @param vars_groups A vector of specific variable names that are in vars_meas.
+#' @param nodes A string with name of variable specifying the different groups which will be represented as different nodes.
 #' @param outcome A string with name of variable specifying the outcome.
 #' @param vis_options A string with name of variable specifying the different groups which will be represented as different lines
 #' The possibilities for the vis_options are:
 #' "axis_limits = ..."; vector with lower and upper limit of y-axis (e.g., c(0, 10))
 #' @return A ggplot-object/graph.
 #' @import ggplot2
+#' @import dplyr left_join
 
 #' @export
 esm_nw <- function(data = NULL,
                    var_date = NULL,
                    vars_meas = NULL,
+                   vars_groups = NULL,
                    nodes = NULL,
                    outcome = NULL,
                    vis_options = NULL)
 {
 
+  no_nodes <- length(vars_meas)
+  if (no_nodes == 2) {
+    node_df <- data.frame(Name = vars_meas,
+                          x = c(0,0),
+                          y = c(1, -1),
+                          stringsAsFactors = FALSE)
+  } else {
+    node_df <- data.frame(Name = vars_meas,
+                          x = sin(2 * pi * ((0:(no_nodes - 1))/no_nodes)),
+                          y = cos(2 * pi * ((0:(no_nodes - 1))/no_nodes)),
+                          stringsAsFactors = FALSE)
+  }
+
+  if (!is.null(vars_groups)) {
+   node_df$node_colours <-  vars_groups
+  }
+
+  #print(str(node_df))
+
+  data <- dplyr::left_join(data, node_df, by = "Name")
+  data$abbr <- substr(data[[nodes]], 1, 4)
+
   plot <- ggplot(data,
-                 aes_string(x = nodes, y = outcome, fill = nodes)) +
-    geom_bar(stat = "identity") +
-    theme_minimal() +
-    coord_flip() +
-    scale_x_discrete(limits = vars_meas) +
-    labs(x = "Time") +
+                 aes_string(x = "x", y = "y")) +
+    geom_point(size = 10, colour = "lightgrey") +
+    theme_void() +
+    scale_x_continuous(expand = c(0.20, 0)) +
+    scale_y_continuous(expand = c(0.20, 0)) +
     facet_wrap(as.formula(paste("~", var_date)))
+
+  if ( is.null(vars_groups) ) {
+      plot <- plot + geom_point(aes_string(size = outcome, colour = nodes)) +
+        scale_size_continuous(limits = c(1, 10)) # CHECK HOW THIS WORKS
+  } else {
+    plot <- plot + geom_point(aes_string(size = outcome, colour = nodes)) +
+      scale_colour_manual(values = vars_groups) +
+      #scale_colour_identity() +
+      scale_size_continuous(limits = c(1, 10)) # CHECK HOW THIS WORKS
+  }
+
+  plot <- plot + geom_text(aes(label = abbr), colour = "white") +
+    guides(colour = FALSE, size = FALSE)
 
   if ( !is.null(vis_options[["axis_limits"]]) ) {
     plot <- plot +
       scale_y_continuous(limits = vis_options[["axis_limits"]])
   }
+
   plot
 
 }
+#?scale_colour_manual

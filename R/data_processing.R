@@ -69,14 +69,15 @@ data_processing <- function(data = NULL,
     stop("Not all variables specified in 'vars_meas = ...' are numeric!")
   }
 
-  if ( !is.null(vars_groups) ) {
-    if ( !all(vars_groups %in% colnames(data)) ) {
-      stop("Not all variables specified in 'vars_groups = ...' exist!")
-    } else if ( !all(vars_groups %in% vars_meas) ) {
-      stop("Not all grouping variables specified in 'vars_groups = ...'
-           are specified in 'vars_meas = ...'")
-    }
-  }
+# PAS DEZE AAN
+#  if ( !is.null(vars_groups) ) {
+#    if ( !all(vars_groups %in% colnames(data)) ) {
+#      stop("Not all variables specified in 'vars_groups = ...' exist!")
+#    } else if ( !all(vars_groups %in% vars_meas) ) {
+#      stop("Not all grouping variables specified in 'vars_groups = ...'
+#           are specified in 'vars_meas = ...'")
+#    }
+#  }
 
   # check_events(vars_events)
   # check_descr(vars_descr)
@@ -134,14 +135,11 @@ data_processing <- function(data = NULL,
     }
   }
 
-  # EXPLAIN LAURA WHY DATA PROCESSING HERE
-  # OTHERWISE BOUNDARIES CANNOT BE IN DATA
   if ( length(ID) == 2 ) {
     data <- dplyr::filter(data,
                           data[ID[["var_ID"]]] ==  ID[["ID"]])
   }
 
-  # SHOW LAURA
   if ( !(type_vis %in% c("timeseries", "zoom", "network", "barchart")) ) {
     # Error message weird format. FIX
     stop("You haven't selected a correct type of visualisation in the
