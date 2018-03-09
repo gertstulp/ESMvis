@@ -16,10 +16,12 @@
 #' "axis_limits = ..."; vector with lower and upper limit of y-axis (e.g., c(0, 10))
 #' @return A ggplot-object/graph.
 #' @import ggplot2
+#' @importFrom dplyr mutate lead select unique
 
 #' @export
 esm_ts <- function(data = NULL,
                    var_date = NULL,
+                   vars_event = NULL,
                    lines = NULL,
                    outcome = NULL,
                    vis_options = NULL)
@@ -61,6 +63,27 @@ esm_ts <- function(data = NULL,
         scale_y_continuous(limits = vis_options[["axis_limits"]])
     }
   }
-  plot
 
+    if ( length(vars_event) != 0 ) {
+
+    event_df <- data %>%
+      select(c(var_date, vars_event[["score_event"]],
+               vars_event[["text_event"]])) %>%
+      unique()  %>%
+      arrange_(var_date) %>% # CHECK QUOSURE as.name !! AAAAGGGUUUHHHH
+      mutate(var_date_next = lead(date_esmvis))
+
+    print(slice(event_df, (nrow(event_df)-10):nrow(event_df)))
+# TRY CHECKING OUT IF YOU CAN DO as.name aes()
+    plot <- plot + geom_rect(data = event_df,
+                              aes_string(xmin = var_date,
+                                         xmax = "var_date_next",
+                                         ymin = -Inf,
+                                         ymax = Inf,
+                                         fill = vars_event[["score_event"]]),
+                             alpha = 0.5, inherit.aes = FALSE)
+  }
+
+  plot
 } # CAN BE DONE WITH &labs
+

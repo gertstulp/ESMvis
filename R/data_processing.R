@@ -82,33 +82,33 @@ data_processing <- function(data = NULL,
   # check_events(vars_events)
   # check_descr(vars_descr)
 
-  if ( length(vars_event) != 0 ) {
-    if (length(vars_event) == 2) {
-      if(is.null(vars_event[["score_event"]]) ||
-         is.null(vars_event[["text_event"]]) ) {
-        stop("One of the variables in 'vars_event = ...' is NULL")
-      } else if ( !all(c(vars_event[["score_event"]], vars_event[["text_event"]]
-                  %in% colnames(data)) ) ) {
-        stop("Not all variables  in 'vars_event = ...' exist!")
-      } else if ( !is.numeric(data[[vars_event[["score_event"]]]]) ) {
-        stop("Variable in 'score_event = ...' not numerical!")
-      }
-    } else {
-      if( !is.null(vars_event[["score_event"]]) ) {
-        if ( !(vars_event[["score_event"]] %in% colnames(data)) ) {
-          stop("Variable in 'score_event = ...' does not exist!")
-        } else if ( !is.numeric(data[[vars_event[["score_event"]]]]) ) {
-          stop("Variable in 'score_event = ...' not numerical!")
-        }
-      } else if( !is.null(vars_event[["text_event"]]) ) {
-        if ( !(vars_event[["text_event"]] %in% colnames(data)) ) {
-          stop("Variable in 'text_event = ...' does not exist!")
-        }
-      } else {
-        stop("Variable in 'vars_event = ...' is NULL")
-      }
-    }
-  }
+  # if ( length(vars_event) != 0 ) {
+  #   if (length(vars_event) == 2) {
+  #     if(is.null(vars_event[["score_event"]]) ||
+  #        is.null(vars_event[["text_event"]]) ) {
+  #       stop("One of the variables in 'vars_event = ...' is NULL")
+  #     } else if ( !all(c(vars_event[["score_event"]], vars_event[["text_event"]]
+  #                 %in% colnames(data)) ) ) {
+  #       stop("Not all variables  in 'vars_event = ...' exist!")
+  #     } else if ( !is.numeric(data[[vars_event[["score_event"]]]]) ) {
+  #       stop("Variable in 'score_event = ...' not numerical!")
+  #     }
+  #   } else {
+  #     if( !is.null(vars_event[["score_event"]]) ) {
+  #       if ( !(vars_event[["score_event"]] %in% colnames(data)) ) {
+  #         stop("Variable in 'score_event = ...' does not exist!")
+  #       } else if ( !is.numeric(data[[vars_event[["score_event"]]]]) ) {
+  #         stop("Variable in 'score_event = ...' not numerical!")
+  #       }
+  #     } else if( !is.null(vars_event[["text_event"]]) ) {
+  #       if ( !(vars_event[["text_event"]] %in% colnames(data)) ) {
+  #         stop("Variable in 'text_event = ...' does not exist!")
+  #       }
+  #     } else {
+  #       stop("Variable in 'vars_event = ...' is NULL")
+  #     }
+  #   }
+  # }
 
 
   if ( length(ID) != 0 ) {

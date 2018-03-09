@@ -48,8 +48,8 @@ data_process <- data_processing(
 data_ts <- data_process[["data_l"]]
 
   if (type_vis == "timeseries") {
-    esm_ts(data_ts, var_date = "date_esmvis", lines = "Name",
-           outcome = "Score", vis_options = vis_options)
+    esm_ts(data_ts, var_date = "date_esmvis", vars_event = vars_event,
+           lines = "Name", outcome = "Score", vis_options = vis_options)
   } else if (type_vis == "zoom") {
     data_zoom <- data_process[["data_zoom"]]
     esm_zoom(data_ts, data_zoom, var_date = "date_esmvis", lines = "Name",
