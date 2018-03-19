@@ -2,11 +2,14 @@
 library(patchwork) # Needs to be added to Description still
 
 
-#' Wrapper function to create timeseries line plot and below a zoomed-in plot.
+#' Wrapper function to create animation across time.
 #'
 #' @param data A dataframe.
 #' @param data_zoom A dataframe with the period selected for zoom.
 #' @param var_date A string with the name of the date-variable for the x-axis.
+#' @param vars_event A vector with XXXXX.
+#' @param vars_meas A vector with strings of variable names that determines order of x-axis.
+#' @param vars_groups A vector of specific variable names that are in vars_meas.
 #' @param lines A string with name of variable specifying the different groups which will be represented as different lines.
 #' @param outcome A string with name of variable specifying the outcome.
 #' @param vis_options A list with options for the graph.
@@ -17,18 +20,19 @@ library(patchwork) # Needs to be added to Description still
 #' "kernel = ..."; parameter to control the degree of smoothening (between 0 and 1).
 #' "se_band = TRUE/FALSE"; whether or not confidence band should be drawn around smoothening line.
 #' "axis_limits = ..."; vector with lower and upper limit of y-axis (e.g., c(0, 10))
-#' @param vars_events A vector with XXXXX.
 #' @return A ggplot-object/graph.
 #' @import ggplot2
 
 #' @export
-esm_zoom <- function(data = NULL,
+esm_ts_nw <- function(data = NULL,
                      data_zoom = NULL,
                      var_date = NULL,
+                     vars_event = NULL,
+                     vars_meas = NULL,
+                     vars_groups = NULL,
                      lines = NULL,
                      outcome = NULL,
-                     vis_options = NULL,
-                     vars_events = NULL)
+                     vis_options = NULL)
 {
 
   overall_ts <- esm_ts(data, var_date = var_date, lines = "Name",
@@ -38,12 +42,19 @@ esm_zoom <- function(data = NULL,
                               xmax = max(data_zoom[var_date]),
                               ymin = -Inf, ymax = Inf,
                               alpha = .2,
-                              fill = "blue")
+                              fill = "blue") +
+    guides(colour= FALSE)
 
   zoom_ts <- esm_ts(data_zoom, var_date = var_date, lines = "Name",
-                    outcome = "Score", vis_options = vis_options)
+                    outcome = "Score", vis_options = vis_options)+
+    theme(legend.position = "top")
 
-  both_ts <- overall_ts + zoom_ts + plot_layout(ncol = 1)
-  both_ts
-  #zoom_ts # Patchwork not on CRAN YET problem.
+  nw <- esm_nw(data_zoom, var_date = var_date, vars_meas, vars_groups,
+               nodes = "Name",
+               outcome = "Score", vis_options = vis_options)
+
+  # REMOVE LEGEND OF ONE.
+
+  overall_ts + zoom_ts - nw + plot_layout(ncol = 1, heights = c(1, 2))
+
 }

@@ -7,8 +7,9 @@
 #' @param vars_groups A vector of specific variable names that are in vars_meas.
 #' @param vars_event A vector of names of variables that describe events.
 #' @param vars_descr A vector of names of variables that describe events.
+#' @param interval XXXXXXXX
 #' @param ID A list that must contain the elements ID_var and ID; ID_var must be a string with a variable name, and ID must be a string of the unique identifier.
-#' @param type_vis The type of visualisation required; the options are "timeseries" (default), "zoom", "barchart", and "network".
+#' @param type_vis The type of visualisation required; the options are "timeseries" (default), "zoom", "barchart", "network", "combined", animation".
 #' @param vis_options A list with visualisation options. See the functions esm_ts, esm_bc, and esm_nw for further help.
 #' @param time_frame A vector with the first and last measurement.
 #' @param sel_period A vector with the first and last measurement for selecting a specific period.
@@ -23,6 +24,7 @@ esm_vis <- function(data = NULL,
                     vars_groups = NULL,
                     vars_event = NULL,
                     vars_descr = NULL,
+                    interval = "week",
                     ID = NULL,
                     type_vis = "timeseries", # what to do when you only want selected
                     vis_options = NULL,
@@ -33,32 +35,49 @@ esm_vis <- function(data = NULL,
 
 data_process <- data_processing(
   data,
-  var_date,
-  format_date,
-  vars_meas,
-  vars_groups,
-  vars_event,
-  vars_descr,
-  ID,
-  type_vis,
-  time_frame,
-  sel_period,
-  sel_period_zoom)
+  var_date = var_date,
+  format_date = format_date,
+  vars_meas = vars_meas,
+  vars_groups = vars_groups,
+  vars_event = vars_event,
+  vars_descr = vars_descr,
+  interval = interval,
+  ID = ID,
+  type_vis = type_vis,
+  time_frame = time_frame,
+  sel_period = sel_period,
+  sel_period_zoom = sel_period_zoom)
 
 data_ts <- data_process[["data_l"]]
-
+# FIX ARGUMENTS MAKE CLEARER SPECIFY vars_meas = vars_meas
   if (type_vis == "timeseries") {
     esm_ts(data_ts, var_date = "date_esmvis", vars_event = vars_event,
            lines = "Name", outcome = "Score", vis_options = vis_options)
   } else if (type_vis == "zoom") {
     data_zoom <- data_process[["data_zoom"]]
-    esm_zoom(data_ts, data_zoom, var_date = "date_esmvis", lines = "Name",
-           outcome = "Score", vis_options = vis_options)
+    esm_zoom(data_ts, data_zoom = data_zoom, var_date = "date_esmvis",
+             lines = "Name", outcome = "Score", vis_options = vis_options)
   } else if (type_vis == "barchart") {
-    esm_bc(data_ts, var_date = "date_esmvis", vars_meas, bars = "Name",
-           outcome = "Score", vis_options = vis_options)
+    esm_bc(data_ts, var_date = "date_esmvis", vars_meas = vars_meas,
+           bars = "Name", outcome = "Score", vis_options = vis_options)
   } else if (type_vis == "network") {
-    esm_nw(data_ts, var_date = "date_esmvis", vars_meas, vars_groups,
-           nodes = "Name", outcome = "Score", vis_options = vis_options)
+    esm_nw(data_ts, var_date = "date_esmvis", vars_meas = vars_meas,
+           vars_groups = vars_groups, nodes = "Name", outcome = "Score",
+           vis_options = vis_options)
+  } else if (type_vis == "combined") {
+    data_zoom <- data_process[["data_zoom"]]
+    esm_ts_nw(data_ts, data_zoom = data_zoom,
+             var_date = "date_esmvis", vars_event = vars_event,
+             vars_meas = vars_meas, vars_groups = vars_groups,
+             lines = "Name", outcome = "Score", vis_options = vis_options)
+  } else if (type_vis == "animation") {
+    data_zoom <- data_process[["data_zoom"]]
+    esm_anim(data_ts, var_date = "date_esmvis",
+              interval = interval,
+              vars_event = vars_event,
+              vars_meas = vars_meas,
+              vars_groups = vars_groups,
+              lines = "Name", outcome = "Score", vis_options = vis_options)
+
   }
 }

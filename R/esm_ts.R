@@ -4,6 +4,7 @@
 #'
 #' @param data A dataframe.
 #' @param var_date A string with the name of the date-variable for the x-axis.
+#' @param vars_event LALALALALA.
 #' @param lines A string with name of variable specifying the different groups which will be represented as different lines.
 #' @param outcome A string with name of variable specifying the outcome.
 #' @param vis_options A list with options for the graph.
@@ -17,6 +18,7 @@
 #' @return A ggplot-object/graph.
 #' @import ggplot2
 #' @importFrom dplyr mutate lead select unique
+#' @import animation
 
 #' @export
 esm_ts <- function(data = NULL,
@@ -32,7 +34,34 @@ esm_ts <- function(data = NULL,
     theme_minimal() +
     labs(x = "Time")
 
-  # SHOW LAURA DEFAULT IS LINE
+  if ( length(vars_event) != 0 ) {
+
+    # FIX THIS CODE WITHOUT USING THE PIPE
+    # ALSO FIX THE ARRANGE_ ISSUE QUOSURES AAAHHHH
+
+    event_df <- data %>%
+      select(c(var_date, vars_event[["score_event"]],
+               vars_event[["text_event"]])) %>%
+      unique()  %>%
+      arrange_(var_date) %>% # CHECK QUOSURE as.name !! AAAAGGGUUUHHHH
+      mutate(var_date_next = lead(date_esmvis))
+
+    print(slice(event_df, (nrow(event_df)-10):nrow(event_df)))
+
+    plot <- plot + geom_rect(data = event_df,
+                             aes(xmin = get(var_date),
+                                 xmax = var_date_next,
+                                 ymin = -Inf,
+                                 ymax = Inf,
+                                 fill = get(vars_event[["score_event"]])),
+                             inherit.aes = FALSE, alpha = 0.5) +
+      scale_fill_gradient2(low = "red", mid = "white",
+                           high = "blue", midpoint = 0, na.value = "grey50") +
+      guides(fill = guide_legend(override.aes = list(alpha = 0.5))) +
+      #guides(fill = guide_colourbar(override.aes = list(alpha = 0.5))) +
+      labs(fill = "Experience")
+  }
+
   if ( length(vis_options) == 0 ) {
     plot <- plot + geom_smooth(se = FALSE, kernel = 0.25)
   } else if ( length(vis_options) != 0 ) {
@@ -62,26 +91,6 @@ esm_ts <- function(data = NULL,
       plot <- plot +
         scale_y_continuous(limits = vis_options[["axis_limits"]])
     }
-  }
-
-    if ( length(vars_event) != 0 ) {
-
-    event_df <- data %>%
-      select(c(var_date, vars_event[["score_event"]],
-               vars_event[["text_event"]])) %>%
-      unique()  %>%
-      arrange_(var_date) %>% # CHECK QUOSURE as.name !! AAAAGGGUUUHHHH
-      mutate(var_date_next = lead(date_esmvis))
-
-    print(slice(event_df, (nrow(event_df)-10):nrow(event_df)))
-# TRY CHECKING OUT IF YOU CAN DO as.name aes()
-    plot <- plot + geom_rect(data = event_df,
-                              aes_string(xmin = var_date,
-                                         xmax = "var_date_next",
-                                         ymin = -Inf,
-                                         ymax = Inf,
-                                         fill = vars_event[["score_event"]]),
-                             alpha = 0.5, inherit.aes = FALSE)
   }
 
   plot

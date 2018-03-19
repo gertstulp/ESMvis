@@ -3,12 +3,13 @@
 #' Wrapper function to create network for each date / measurement.
 #'
 #' @param data A dataframe.
-#' @param var_date A string with the name of the date-variable for the different facets.
+#' @param var_date A string that will be passed to facet_wrap(as.formula(var_date)).
 #' @param vars_meas A vector with strings of variable names that determines order of x-axis.
 #' @param vars_groups A vector of specific variable names that are in vars_meas.
 #' @param nodes A string with name of variable specifying the different groups which will be represented as different nodes.
 #' @param outcome A string with name of variable specifying the outcome.
 #' @param vis_options A string with name of variable specifying the different groups which will be represented as different lines
+#' @param interval BLABLAA
 #' The possibilities for the vis_options are:
 #' "axis_limits = ..."; vector with lower and upper limit of y-axis (e.g., c(0, 10))
 #' @return A ggplot-object/graph.
@@ -20,6 +21,7 @@ esm_nw <- function(data = NULL,
                    var_date = NULL,
                    vars_meas = NULL,
                    vars_groups = NULL,
+                   interval = NULL,
                    nodes = NULL,
                    outcome = NULL,
                    vis_options = NULL)
@@ -55,10 +57,26 @@ esm_nw <- function(data = NULL,
     scale_y_continuous(expand = c(0.20, 0)) +
     facet_wrap(as.formula(paste("~", var_date)))
 
+  if(!is.null(interval)) {
+    if(interval == "week") {
+      plot <- plot + facet_grid(
+        as.formula(paste("ind_int_esmvis" , "~", "day_esmvis"))
+      )
+    } else if(interval == "day") {
+      plot <- plot + facet_grid(
+        as.formula(paste("ind_int_esmvis" , "~", "day_esmvis"))
+      )
+    }
+  }
+
+
+  #week_esmvis, day_esmvis, ind_int_esmvis
+
   if ( is.null(vars_groups) ) {
       plot <- plot + geom_point(aes_string(size = outcome, colour = nodes)) +
         scale_size_continuous(limits = c(1, 10)) # CHECK HOW THIS WORKS
   } else {
+    names(vars_groups) <- vars_meas
     plot <- plot + geom_point(aes_string(size = outcome, colour = nodes)) +
       scale_colour_manual(values = vars_groups) +
       #scale_colour_identity() +

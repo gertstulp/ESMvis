@@ -11,6 +11,7 @@
 #' @param vars_groups A vector of specific variable names that are in vars_meas.
 #' @param vars_event A vector of names of variables that describe events.
 #' @param vars_descr A vector of names of variables that describe events.
+#' @param interval XXXXXXXX Can be week or day
 #' @param ID A list that must contain the elements ID_var and ID; ID_var must be a string with a variable name, and ID must be a string of the unique identifier.
 #' @param type_vis The type of visualisation required; the options are "timeseries" (default), "zoom", "barchart", and "network".
 #' @param time_frame A vector with the first and last measurement.
@@ -19,7 +20,7 @@
 #' @return A list with one or two dataframes for visualisation.
 #' @importFrom tidyr gather
 #' @importFrom dplyr filter
-#' @importFrom lubridate parse_date_time
+#' @importFrom lubridate parse_date_time week wday
 
 #' @export
 data_processing <- function(data = NULL,
@@ -29,6 +30,7 @@ data_processing <- function(data = NULL,
                             vars_groups = NULL,
                             vars_event = NULL,
                             vars_descr = NULL,
+                            interval = "week",
                             ID = NULL,
                             type_vis = "timeseries",
                             time_frame = "all",
@@ -41,7 +43,7 @@ data_processing <- function(data = NULL,
     stop("Please provide a dataframe with the argument 'data = ...'.
          Perhaps use data.frame(...)")
   }
-
+# COULD ALSO ADD WEEK HERE
   if ( is.null(var_date) ) {
     warning("No date variable specified. Using rownumber as date.
             Use argument 'var_date = ...' to specify")
@@ -60,6 +62,7 @@ data_processing <- function(data = NULL,
     }
   }
 
+
   if ( is.null(vars_meas) ) {
     stop("No variables specified for visualisation.
          Use argument 'vars_meas = ...' to specify.")
@@ -69,7 +72,11 @@ data_processing <- function(data = NULL,
     stop("Not all variables specified in 'vars_meas = ...' are numeric!")
   }
 
-# PAS DEZE AAN
+  ### CHECKING INTERVAL MAKE FUNCTIONS
+
+
+
+  # PAS DEZE AAN
 #  if ( !is.null(vars_groups) ) {
 #    if ( !all(vars_groups %in% colnames(data)) ) {
 #      stop("Not all variables specified in 'vars_groups = ...' exist!")
@@ -140,7 +147,35 @@ data_processing <- function(data = NULL,
                           data[ID[["var_ID"]]] ==  ID[["ID"]])
   }
 
-  if ( !(type_vis %in% c("timeseries", "zoom", "network", "barchart")) ) {
+
+  # ADD WARNINGS
+  library(tidyverse)
+  if ( !is.null(interval) ) {
+    if (inherits(data[["date_esmvis"]],
+                 c("Date", "POSIXlt", "POSIXct", "is.POSIXt"))) {
+        data$week_esmvis <- lubridate::week(data[["date_esmvis"]])
+        data$day_esmvis <- lubridate::wday(data[["date_esmvis"]],
+                                           label = TRUE, abbr = TRUE,
+                                           week_start = 1)
+        data <- data %>%
+          arrange(date_esmvis) %>%
+          group_by(day_esmvis) %>%
+          mutate(ind_int_esmvis = row_number(day_esmvis)) %>%
+          ungroup()
+    } else if( is.numeric(data[[var_date]]) ) {
+      data$week_esmvis <- (( data[["date_esmvis"]] - 1 ) %/% 7) + 1
+      data$day_esmvis <- data[["date_esmvis"]]
+      data <- data %>%
+        arrange(week_esmvis, day_esmvis) %>%
+        group_by(week_esmvis, day_esmvis) %>%
+        mutate(ind_int_esmvis = row_number(day_esmvis)) %>%
+        ungroup()
+    }
+  }
+
+
+  if ( !(type_vis %in% c("timeseries", "zoom", "network",
+                         "barchart", "combined", "animation")) ) {
     # Error message weird format. FIX
     stop("You haven't selected a correct type of visualisation in the
          argument 'type_vis = ...'. Please choose from: 'timeseries',
@@ -166,7 +201,7 @@ data_processing <- function(data = NULL,
   }
 
   if ( !is.null(sel_period_zoom) ) {
-    if ( type_vis != "zoom") {
+    if ( !(type_vis %in% c("zoom", "combined")) ) {
       warning("Did you forget 'type_vis = 'zoom'")
     }
     if ( is.null(sel_period) ) {
@@ -198,7 +233,7 @@ data_processing <- function(data = NULL,
   data_l <- tidyr::gather(data, vars_meas,
                           key = "Name", value = "Score")
 
-  if ( type_vis == "zoom" && !is.null(sel_period_zoom) ) {
+  if ( type_vis %in% c("zoom", "combined") && !is.null(sel_period_zoom) ) {
     data_zoom <- dplyr::filter(data_l,
                               data_l[var_date] >= sel_period_zoom[1] &
                               data_l[var_date] <= sel_period_zoom[2])
