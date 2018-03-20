@@ -7,7 +7,7 @@
 #' @export
 time_count <- function(dates, unit = "week") {
   cnt <- vector(mode = "integer", length(dates))
-  min_date <- as_date(min(dates))
+  min_date <- as_date(min(dates, na.rm = T))
   if(unit == "week") {
     min_wday <- wday(min_date, week_start = 1)
     min_date_mon <- min_date - days(min_wday - 1)

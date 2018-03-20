@@ -10,6 +10,7 @@
 #' @param outcome A string with name of variable specifying the outcome.
 #' @param vis_options A string with name of variable specifying the different groups which will be represented as different lines
 #' @param interval BLABLAA
+#' @param vars_event LAALAL ALABELS
 #' The possibilities for the vis_options are:
 #' "axis_limits = ..."; vector with lower and upper limit of y-axis (e.g., c(0, 10))
 #' @return A ggplot-object/graph.
@@ -24,7 +25,8 @@ esm_nw <- function(data = NULL,
                    interval = NULL,
                    nodes = NULL,
                    outcome = NULL,
-                   vis_options = NULL)
+                   vis_options = NULL,
+                   vars_event = NULL)
 {
 
   no_nodes <- length(vars_meas)
@@ -47,8 +49,9 @@ esm_nw <- function(data = NULL,
   #print(str(node_df))
 
   data <- dplyr::left_join(data, node_df, by = "Name")
+  #filter(data, !is.na(c(outcome)))
   data$abbr <- substr(data[[nodes]], 1, 4)
-
+  #print(sum(is.na(data$Score)))
   plot <- ggplot(data,
                  aes_string(x = "x", y = "y")) +
     geom_point(size = 10, colour = "lightgrey") +
@@ -68,11 +71,12 @@ esm_nw <- function(data = NULL,
       panel.grid = element_blank()#,
       #panel.border = element_rect(fill = NA, color = "grey50")
     )
-?element_rect
+
   if(!is.null(interval)) {
     if(interval == "week") {
       plot <- plot + facet_grid(
-        as.formula(paste("ind_int_esmvis" , "~", "wday_esmvis"))
+        as.formula(paste("ind_int_esmvis" , "~", "wday_esmvis")),
+        drop = FALSE
       )
     } else if(interval == "day") {
       plot <- plot + facet_grid(
@@ -86,13 +90,15 @@ esm_nw <- function(data = NULL,
 
   if ( is.null(vars_groups) ) {
       plot <- plot + geom_point(aes_string(size = outcome, colour = nodes)) +
-        scale_size_continuous(limits = c(1, 10)) # CHECK HOW THIS WORKS
+        #scale_size_continuous(limits = c(1, 10))
+        scale_radius(range = c(1,10))# CHECK HOW THIS WORKS
   } else {
     names(vars_groups) <- vars_meas
     plot <- plot + geom_point(aes_string(size = outcome, colour = nodes)) +
       scale_colour_manual(values = vars_groups) +
       #scale_colour_identity() +
-      scale_size_continuous(limits = c(1, 10)) # CHECK HOW THIS WORKS
+      scale_radius(range = c(1,10))
+      #scale_size_continuous(limits = c(1, 10)) # CHECK HOW THIS WORKS
   }
 
   plot <- plot + geom_text(aes(label = abbr), colour = "white") +

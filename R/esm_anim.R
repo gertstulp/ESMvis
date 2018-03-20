@@ -37,61 +37,41 @@ esm_anim <- function(data = NULL,
                      outcome = NULL,
                      vis_options = NULL)
 {
-  no_fig <- length(min(data[["weekno_esmvis"]]):max(data[["weekno_esmvis"]]))
 
-      # data_zoom <- filter(data, weekno_esmvis ==  2)
-      # overall_ts <- esm_ts(data, var_date = var_date, lines = "Name",
-      #                      outcome = "Score", vis_options = vis_options)
-      #
-      # overall_ts <- overall_ts + annotate("rect", xmin = min(data_zoom[[var_date]]),
-      #                                     xmax = max(data_zoom[[var_date]]),
-      #                                     ymin = -Inf, ymax = Inf,
-      #                                     alpha = .2,
-      #                                     fill = "blue") +
-      #   guides(colour= FALSE)
-      #
-      # zoom_ts <- esm_ts(data_zoom, var_date = var_date, lines = "Name",
-      #                   outcome = "Score", vis_options = vis_options)+
-      #   theme(legend.position = "top")
-      #
-      # nw <- esm_nw(data_zoom, var_date = var_date, vars_meas = vars_meas,
-      #              vars_groups = vars_groups,
-      #              nodes = "Name",
-      #              outcome = "Score", vis_options = vis_options,
-      #              interval = interval)
-      #
-      # print(overall_ts + zoom_ts - nw + plot_layout(ncol = 1, heights = c(1, 4)))
+  no_fig <- unique(data[["weekno_esmvis"]])
+  no_fig <- no_fig[!is.na(no_fig)]
+
+      print(esm_ts_nw(data = data,
+                data_zoom = filter(data, weekno_esmvis ==  2),
+                var_date = var_date,
+                vars_event = NULL,
+                vars_meas = vars_meas,
+                vars_groups = vars_groups,
+                lines = lines,
+                outcome = outcome,
+                vis_options = vis_options,
+                interval = interval))
+
 
   grain = 1.5
   saveHTML({
-    for (i in min(data[["weekno_esmvis"]]):max(data[["weekno_esmvis"]]) ) {
+    for (i in no_fig) {
     #for (i in 1:3) {
       data_zoom <- filter(data, weekno_esmvis ==  i)
-      overall_ts <- esm_ts(data, var_date = var_date, lines = "Name",
-                           outcome = "Score", vis_options = vis_options)
 
-      overall_ts <- overall_ts + annotate("rect", xmin = min(data_zoom[[var_date]]),
-                                          xmax = max(data_zoom[[var_date]]),
-                                          ymin = -Inf, ymax = Inf,
-                                          alpha = .2,
-                                          fill = "blue") +
-        guides(colour= FALSE) + labs(title = "Timeline")
-
-      zoom_ts <- esm_ts(data_zoom, var_date = var_date, lines = "Name",
-                        outcome = "Score", vis_options = list(point = TRUE,
-                                                              smooth = FALSE,
-                                                              se_band = FALSE,
-                                                              line = TRUE)) +
-        theme(legend.position = "top") + labs(title = "Zoom")
-
-      nw <- esm_nw(data_zoom, var_date = var_date, vars_meas = vars_meas,
-                   vars_groups = vars_groups,
-                   nodes = "Name",
-                   outcome = "Score", vis_options = vis_options,
-                   interval = interval)
-
-      print(overall_ts + zoom_ts - nw + plot_layout(ncol = 1, heights = c(1, 3)))
-      print(paste(round(i/no_fig, digits = 2) * 100, "% done", sep = ""))
+      print(
+        esm_ts_nw(data = data,
+                  data_zoom = data_zoom,
+                  var_date = var_date,
+                  vars_event = NULL,
+                  vars_meas = vars_meas,
+                  vars_groups = vars_groups,
+                  lines = lines,
+                  outcome = outcome,
+                  vis_options = vis_options,
+                  interval = interval)
+      )
+      print(paste(round(i/max(no_fig), digits = 2) * 100, "% done", sep = ""))
     }
   }, interval = 2, htmlfile = paste("ESMvis_", Sys.time(), ".html", sep = ""),
   ani.dev = function(...){png(res = 75 * grain, ...)},

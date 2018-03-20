@@ -32,29 +32,34 @@ esm_ts_nw <- function(data = NULL,
                      vars_groups = NULL,
                      lines = NULL,
                      outcome = NULL,
-                     vis_options = NULL)
+                     vis_options = NULL,
+                     interval = NULL)
 {
+
 
   overall_ts <- esm_ts(data, var_date = var_date, lines = "Name",
                        outcome = "Score", vis_options = vis_options)
 
-  overall_ts <- overall_ts + annotate("rect", xmin = min(data_zoom[var_date]),
-                              xmax = max(data_zoom[var_date]),
-                              ymin = -Inf, ymax = Inf,
-                              alpha = .2,
-                              fill = "blue") +
-    guides(colour= FALSE)
+  overall_ts <- overall_ts + annotate("rect", xmin = min(data_zoom[[var_date]]),
+                                      xmax = max(data_zoom[[var_date]]),
+                                      ymin = -Inf, ymax = Inf,
+                                      alpha = .2,
+                                      fill = "blue") +
+    guides(colour= FALSE) + labs(title = "Timeline")
 
   zoom_ts <- esm_ts(data_zoom, var_date = var_date, lines = "Name",
-                    outcome = "Score", vis_options = vis_options)+
-    theme(legend.position = "top")
+                    outcome = "Score", vis_options = list(point = TRUE,
+                                                          smooth = FALSE,
+                                                          se_band = FALSE,
+                                                          line = TRUE)) +
+    theme(legend.position = "top") + labs(title = "Zoom")
 
-  nw <- esm_nw(data_zoom, var_date = var_date, vars_meas, vars_groups,
+  nw <- esm_nw(data_zoom, var_date = var_date, vars_meas = vars_meas,
+               vars_groups = vars_groups,
                nodes = "Name",
-               outcome = "Score", vis_options = vis_options)
+               outcome = "Score", vis_options = vis_options,
+               interval = interval)
 
-  # REMOVE LEGEND OF ONE.
-
-  overall_ts + zoom_ts - nw + plot_layout(ncol = 1, heights = c(1, 2))
+  overall_ts + zoom_ts - nw + plot_layout(ncol = 1, heights = c(1, 3))
 
 }
