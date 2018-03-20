@@ -19,8 +19,9 @@
 #' @param sel_period_zoom A vector with the first and last measurement for selecting a specific period in the "zoom" graph.
 #' @return A list with one or two dataframes for visualisation.
 #' @importFrom tidyr gather
-#' @importFrom dplyr filter
-#' @importFrom lubridate parse_date_time week wday
+#' @importFrom dplyr filter mutate group_by ungroup dense_rank
+#' @importFrom lubridate parse_date_time wday
+#' @importFrom magrittr %>%
 
 #' @export
 data_processing <- function(data = NULL,
@@ -153,26 +154,20 @@ data_processing <- function(data = NULL,
   if ( !is.null(interval) ) {
     if (inherits(data[["date_esmvis"]],
                  c("Date", "POSIXlt", "POSIXct", "is.POSIXt"))) {
-        data$week_esmvis <- lubridate::week(data[["date_esmvis"]])
-        data$day_esmvis <- lubridate::wday(data[["date_esmvis"]],
+        data$weekno_esmvis <- time_count(data[["date_esmvis"]], unit = "week")
+        data$dayno_esmvis <- time_count(data[["date_esmvis"]], unit = "day")
+        data$wday_esmvis <- lubridate::wday(data[["date_esmvis"]],
                                            label = TRUE, abbr = TRUE,
                                            week_start = 1)
-        data <- data %>%
-          arrange(date_esmvis) %>%
-          group_by(day_esmvis) %>%
-          mutate(ind_int_esmvis = row_number(day_esmvis)) %>%
-          ungroup()
     } else if( is.numeric(data[[var_date]]) ) {
-      data$week_esmvis <- (( data[["date_esmvis"]] - 1 ) %/% 7) + 1
-      data$day_esmvis <- data[["date_esmvis"]]
-      data <- data %>%
-        arrange(week_esmvis, day_esmvis) %>%
-        group_by(week_esmvis, day_esmvis) %>%
-        mutate(ind_int_esmvis = row_number(day_esmvis)) %>%
-        ungroup()
+      data$weekno_esmvis <- (( data[["date_esmvis"]] - 1 ) %/% 7) + 1
+      data$dayno_esmvis <- data[["date_esmvis"]]
     }
+    data <- data %>%
+      dplyr::group_by(dayno_esmvis) %>%
+      dplyr::mutate(ind_int_esmvis = dplyr::dense_rank(date_esmvis)) %>%
+      dplyr::ungroup()
   }
-
 
   if ( !(type_vis %in% c("timeseries", "zoom", "network",
                          "barchart", "combined", "animation")) ) {

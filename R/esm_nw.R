@@ -52,19 +52,31 @@ esm_nw <- function(data = NULL,
   plot <- ggplot(data,
                  aes_string(x = "x", y = "y")) +
     geom_point(size = 10, colour = "lightgrey") +
-    theme_void() +
     scale_x_continuous(expand = c(0.20, 0)) +
     scale_y_continuous(expand = c(0.20, 0)) +
-    facet_wrap(as.formula(paste("~", var_date)))
-
+    coord_fixed() +
+    facet_wrap(as.formula(paste("~", var_date))) +
+    theme_minimal() +
+    theme(
+      axis.text = element_blank(),
+      axis.ticks = element_blank(),
+      axis.title = element_blank(),
+      legend.key = element_blank(),
+      panel.background = element_rect(fill = "white", colour = NA),
+      strip.background = element_rect(fill = NA, colour = "grey50"),
+      panel.border = element_blank(),
+      panel.grid = element_blank()#,
+      #panel.border = element_rect(fill = NA, color = "grey50")
+    )
+?element_rect
   if(!is.null(interval)) {
     if(interval == "week") {
       plot <- plot + facet_grid(
-        as.formula(paste("ind_int_esmvis" , "~", "day_esmvis"))
+        as.formula(paste("ind_int_esmvis" , "~", "wday_esmvis"))
       )
     } else if(interval == "day") {
       plot <- plot + facet_grid(
-        as.formula(paste("ind_int_esmvis" , "~", "day_esmvis"))
+        as.formula(paste("ind_int_esmvis" , "~", "dayno_esmvis"))
       )
     }
   }

@@ -32,7 +32,7 @@ esm_ts <- function(data = NULL,
   plot <- ggplot(data,
                  aes_string(x = var_date, y = outcome, colour = lines)) +
     theme_minimal() +
-    labs(x = "Time")
+    labs(x = "Time", colour = NULL)
 
   if ( length(vars_event) != 0 ) {
 
@@ -55,8 +55,8 @@ esm_ts <- function(data = NULL,
                                  ymax = Inf,
                                  fill = get(vars_event[["score_event"]])),
                              inherit.aes = FALSE, alpha = 0.5) +
-      scale_fill_gradient2(low = "red", mid = "white",
-                           high = "blue", midpoint = 0, na.value = "grey50") +
+      scale_fill_gradient2(low = "red",
+                           high = "blue", midpoint = 0, na.value = "white") +
       guides(fill = guide_legend(override.aes = list(alpha = 0.5))) +
       #guides(fill = guide_colourbar(override.aes = list(alpha = 0.5))) +
       labs(fill = "Experience")
