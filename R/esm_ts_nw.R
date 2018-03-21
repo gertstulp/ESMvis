@@ -38,6 +38,7 @@ esm_ts_nw <- function(data = NULL,
 
 
   overall_ts <- esm_ts(data, var_date = var_date, lines = "Name",
+                       vars_event = vars_event,
                        outcome = "Score", vis_options = vis_options)
 
   overall_ts <- overall_ts + annotate("rect", xmin = min(data_zoom[[var_date]]),
@@ -45,9 +46,10 @@ esm_ts_nw <- function(data = NULL,
                                       ymin = -Inf, ymax = Inf,
                                       alpha = .2,
                                       fill = "blue") +
-    guides(colour= FALSE) + labs(title = "Timeline")
+    guides(colour= FALSE, fill = FALSE) + labs(title = "Timeline")
 
   zoom_ts <- esm_ts(data_zoom, var_date = var_date, lines = "Name",
+                    vars_event = vars_event,
                     outcome = "Score", vis_options = list(point = TRUE,
                                                           smooth = FALSE,
                                                           se_band = FALSE,

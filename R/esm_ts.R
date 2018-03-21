@@ -46,7 +46,7 @@ esm_ts <- function(data = NULL,
       arrange_(var_date) %>% # CHECK QUOSURE as.name !! AAAAGGGUUUHHHH
       mutate(var_date_next = lead(date_esmvis))
 
-    print(slice(event_df, (nrow(event_df)-10):nrow(event_df)))
+    #print(slice(event_df, (nrow(event_df)-10):nrow(event_df)))
 
     plot <- plot + geom_rect(data = event_df,
                              aes(xmin = get(var_date),

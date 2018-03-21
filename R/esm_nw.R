@@ -120,7 +120,7 @@ esm_nw <- function(data = NULL,
                "wday_esmvis", vars_event[["score_event"]])) %>%
      filter( !is.na(data[vars_event[["score_event"]]])) %>%
       unique()
-    print(data_label)
+    #print(data_label)
     plot <- plot + geom_label(data = data_label,
       aes_string(x = 0, y = 0, label = '"PL"', alpha = vars_event[["score_event"]]),
       fill = "seagreen4") +

@@ -38,16 +38,16 @@ esm_anim <- function(data = NULL,
                      vis_options = NULL)
 {
 
-      print(esm_ts_nw(data = data,
-                data_zoom = filter(data, weekno_esmvis ==  2),
-                var_date = var_date,
-                vars_event = vars_event,
-                vars_meas = vars_meas,
-                vars_groups = vars_groups,
-                lines = lines,
-                outcome = outcome,
-                vis_options = vis_options,
-                interval = interval))
+      # print(esm_ts_nw(data = data,
+      #           data_zoom = filter(data, weekno_esmvis ==  2),
+      #           var_date = var_date,
+      #           vars_event = vars_event,
+      #           vars_meas = vars_meas,
+      #           vars_groups = vars_groups,
+      #           lines = lines,
+      #           outcome = outcome,
+      #           vis_options = vis_options,
+      #           interval = interval))
 
 
   if(interval == "week") {
@@ -64,30 +64,30 @@ esm_anim <- function(data = NULL,
     data$interval_esm <-  data[["date_esmvis"]]
   }
   #print(paste(no_fig))
-#
-#   grain = 1.5
-#   saveHTML({
-#     #for (i in no_fig) {
-#     for (i in 1:1) {
-#
-#       data_zoom <- filter(data, interval_esm ==  i)
-#
-#       print(
-#         esm_ts_nw(data = data,
-#                   data_zoom = data_zoom,
-#                   var_date = var_date,
-#                   vars_event = vars_event,
-#                   vars_meas = vars_meas,
-#                   vars_groups = vars_groups,
-#                   lines = lines,
-#                   outcome = outcome,
-#                   vis_options = vis_options,
-#                   interval = interval)
-#       )
-#       print(paste(round(i/max(no_fig), digits = 2) * 100, "% done", sep = ""))
-#     }
-#   }, interval = 2, htmlfile = paste("ESMvis_", Sys.time(), ".html", sep = ""),
-#   ani.dev = function(...){png(res = 75 * grain, ...)},
-#   ani.width = 1150 * grain, ani.height = 640 * grain, verbose = FALSE,
-#   navigator = TRUE)
+
+  grain = 1.5
+  saveHTML({
+    for (i in no_fig) {
+    #for (i in 1:3) {
+
+      data_zoom <- filter(data, interval_esm ==  i)
+
+      print(
+        esm_ts_nw(data = data,
+                  data_zoom = data_zoom,
+                  var_date = var_date,
+                  vars_event = vars_event,
+                  vars_meas = vars_meas,
+                  vars_groups = vars_groups,
+                  lines = lines,
+                  outcome = outcome,
+                  vis_options = vis_options,
+                  interval = interval)
+      )
+      print(paste(round(i/max(no_fig), digits = 2) * 100, "% done", sep = ""))
+    }
+  }, interval = 2, htmlfile = paste("ESMvis_", Sys.time(), ".html", sep = ""),
+  ani.dev = function(...){png(res = 75 * grain, ...)},
+  ani.width = 1150 * grain, ani.height = 640 * grain, verbose = FALSE,
+  navigator = TRUE)
 }
