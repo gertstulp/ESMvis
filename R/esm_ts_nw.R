@@ -56,6 +56,7 @@ esm_ts_nw <- function(data = NULL,
 
   nw <- esm_nw(data_zoom, var_date = var_date, vars_meas = vars_meas,
                vars_groups = vars_groups,
+               vars_event = vars_event,
                nodes = "Name",
                outcome = "Score", vis_options = vis_options,
                interval = interval)

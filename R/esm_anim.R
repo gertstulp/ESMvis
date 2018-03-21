@@ -29,7 +29,7 @@ library(animation)
 #' @export
 esm_anim <- function(data = NULL,
                      var_date = NULL,
-                     interval = "week",
+                     interval = NULL,
                      vars_event = NULL,
                      vars_meas = NULL,
                      vars_groups = NULL,
@@ -38,13 +38,10 @@ esm_anim <- function(data = NULL,
                      vis_options = NULL)
 {
 
-  no_fig <- unique(data[["weekno_esmvis"]])
-  no_fig <- no_fig[!is.na(no_fig)]
-
       print(esm_ts_nw(data = data,
                 data_zoom = filter(data, weekno_esmvis ==  2),
                 var_date = var_date,
-                vars_event = NULL,
+                vars_event = vars_event,
                 vars_meas = vars_meas,
                 vars_groups = vars_groups,
                 lines = lines,
@@ -53,28 +50,44 @@ esm_anim <- function(data = NULL,
                 interval = interval))
 
 
-  grain = 1.5
-  saveHTML({
-    for (i in no_fig) {
-    #for (i in 1:3) {
-      data_zoom <- filter(data, weekno_esmvis ==  i)
-
-      print(
-        esm_ts_nw(data = data,
-                  data_zoom = data_zoom,
-                  var_date = var_date,
-                  vars_event = NULL,
-                  vars_meas = vars_meas,
-                  vars_groups = vars_groups,
-                  lines = lines,
-                  outcome = outcome,
-                  vis_options = vis_options,
-                  interval = interval)
-      )
-      print(paste(round(i/max(no_fig), digits = 2) * 100, "% done", sep = ""))
-    }
-  }, interval = 2, htmlfile = paste("ESMvis_", Sys.time(), ".html", sep = ""),
-  ani.dev = function(...){png(res = 75 * grain, ...)},
-  ani.width = 1150 * grain, ani.height = 640 * grain, verbose = FALSE,
-  navigator = TRUE)
+  if(interval == "week") {
+    no_fig <- unique(data[["weekno_esmvis"]])
+    no_fig <- no_fig[!is.na(no_fig)]
+    data$interval_esm <-  data[["weekno_esmvis"]]
+  } else if(interval == "day") {
+    no_fig <- unique(data[["dayno_esmvis"]])
+    no_fig <- no_fig[!is.na(no_fig)]
+    data$interval_esm <-  data[["dayno_esmvis"]]
+  } else if(interval == "all") {
+    no_fig <- unique(data[["date_esmvis"]])
+    no_fig <- no_fig[!is.na(no_fig)]
+    data$interval_esm <-  data[["date_esmvis"]]
+  }
+  #print(paste(no_fig))
+#
+#   grain = 1.5
+#   saveHTML({
+#     #for (i in no_fig) {
+#     for (i in 1:1) {
+#
+#       data_zoom <- filter(data, interval_esm ==  i)
+#
+#       print(
+#         esm_ts_nw(data = data,
+#                   data_zoom = data_zoom,
+#                   var_date = var_date,
+#                   vars_event = vars_event,
+#                   vars_meas = vars_meas,
+#                   vars_groups = vars_groups,
+#                   lines = lines,
+#                   outcome = outcome,
+#                   vis_options = vis_options,
+#                   interval = interval)
+#       )
+#       print(paste(round(i/max(no_fig), digits = 2) * 100, "% done", sep = ""))
+#     }
+#   }, interval = 2, htmlfile = paste("ESMvis_", Sys.time(), ".html", sep = ""),
+#   ani.dev = function(...){png(res = 75 * grain, ...)},
+#   ani.width = 1150 * grain, ani.height = 640 * grain, verbose = FALSE,
+#   navigator = TRUE)
 }

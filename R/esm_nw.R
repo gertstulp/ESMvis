@@ -15,7 +15,8 @@
 #' "axis_limits = ..."; vector with lower and upper limit of y-axis (e.g., c(0, 10))
 #' @return A ggplot-object/graph.
 #' @import ggplot2
-#' @import dplyr left_join
+#' @importFrom dplyr left_join
+#' @importFrom lubridate as_date
 
 #' @export
 esm_nw <- function(data = NULL,
@@ -80,9 +81,11 @@ esm_nw <- function(data = NULL,
       )
     } else if(interval == "day") {
       plot <- plot + facet_grid(
-        as.formula(paste("ind_int_esmvis" , "~", "dayno_esmvis"))
+        as.formula(paste("as_date(date_esmvis)" , "~", "ind_int_esmvis"))
       )
-    }
+    } # else if(interval == "all") {
+#      plot <- plot + ggtitle(paste(data[["date_esmvis"]]))
+#    }
   }
 
 
@@ -108,6 +111,41 @@ esm_nw <- function(data = NULL,
     plot <- plot +
       scale_y_continuous(limits = vis_options[["axis_limits"]])
   }
+
+  if( !is.null(vars_event) ) {
+    #print((data))
+
+    data_label <- data %>%
+      select(c("date_esmvis", "ind_int_esmvis",
+               "wday_esmvis", vars_event[["score_event"]])) %>%
+     filter( !is.na(data[vars_event[["score_event"]]])) %>%
+      unique()
+    print(data_label)
+    plot <- plot + geom_label(data = data_label,
+      aes_string(x = 0, y = 0, label = '"PL"', alpha = vars_event[["score_event"]]),
+      fill = "seagreen4") +
+      guides(alpha = FALSE)
+
+
+    #   vars_event = list(score_event = "plezierig"),
+      # data=filter(df_ggplot$comb_df_lbl[[1]],
+      #             colour!="black"),
+      # aes(x = x, y = y, label=text,
+      #     fill=colour, alpha=abs(alpha)),
+      # hjust=0.5, vjust=0.5,
+      # colour="white", size=6,
+      # show.legend=FALSE, inherit.aes=FALSE) +
+      # geom_label(
+      #   data=filter(df_ggplot$comb_df_lbl[[1]], colour=="black"),
+      #   aes(x = x, y = y, label=text),
+      #   hjust=0.5, vjust=0.5,
+      #   show.legend=FALSE, inherit.aes=FALSE)
+  }
+
+
+
+
+
 
   plot
 
