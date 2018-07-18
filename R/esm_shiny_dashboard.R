@@ -125,9 +125,23 @@ esm_shiny <- function( input_df = NA, df_label = NA ) {
     period_selected <- reactive({
 
       if(input$Time == "Per measurement" & !is.null(input$meas)) {
-        date_min <- input$meas
-        class(date_min) <- class(input_df[[input$timevar]])
-        c(date_min, date_min)
+        date_minmax <- input$meas
+        class_date <- class(input_df[[input$timevar]])
+
+                if ( class_date %in% c("POSIXlt", "POSIXct", "is.POSIXt")) {
+          date_minmax <- ymd_hms(date_minmax)
+        } else if( class_date == "Date" ) {
+          date_minmax <- as_date(date_minmax)
+        } else {
+          date_minmax <- as.numeric(date_minmax)
+        }
+        print(paste(class(date_minmax)))
+
+        c(date_minmax, date_minmax)
+        #as.numeric(c(date_minmax, date_minmax))
+        # date_min <- input$meas
+        #class(date_min) <- class(input_df[[input$timevar]])
+        # c(parse_date_time(date_min, "ymdHMS"), parse_date_time(date_min, "ymdHMS"))
         # if (inherits(input_df[[input$timevar]],
         #              c("Date", "POSIXlt", "POSIXct", "is.POSIXt"))) {
         #   c(as_datetime(input$meas), as_datetime(input$meas))
@@ -145,7 +159,7 @@ esm_shiny <- function( input_df = NA, df_label = NA ) {
     })
 
     graph <- reactive({
-
+      #warning(paste(class(period_selected()), class(period_selected()[1]), class(period_selected()[2])))
       if(!is.null(input$variables) & input$timevar != " " ) {
         esm_vis(input_df,
                 var_date = input$timevar,
@@ -569,4 +583,4 @@ esm_shiny <- function( input_df = NA, df_label = NA ) {
   shinyApp(ui, server)
 }
 # esm_shiny(esm_data1)
-# esm_shiny(data_massi1)
+esm_shiny(data_massi1)

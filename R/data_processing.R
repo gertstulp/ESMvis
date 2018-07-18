@@ -182,18 +182,23 @@ data_processing <- function(data = NULL,
   # if selected period is sensible
 
   if ( !is.null(sel_period) ) {
-    if ( sel_period[1] < min(data[var_date], na.rm = TRUE) ) {
+    print(sel_period[1] < min(data["date_esmvis"], na.rm = TRUE))
+    if ( sel_period[1] < min(data["date_esmvis"], na.rm = TRUE) ) {
       stop("First date specified in 'sel_period = ...'
            not within (selected) data")
-    } else if ( sel_period[2] > max(data[var_date], na.rm = TRUE) ) {
-      stop("First last specified in 'sel_period = ...'
+    } else if ( sel_period[2] > max(data["date_esmvis"], na.rm = TRUE) ) {
+      print(paste("sel_period[2]", class(sel_period[2]), "max(data['date_esmvis'], na.rm = TRUE)", max(data['date_esmvis'], na.rm = TRUE),
+                  "min(data['date_esmvis'], na.rm = TRUE)", min(data['date_esmvis'], na.rm = TRUE), "sel_period[1] ", class(sel_period[1]) ))
+      stop("Last date specified in 'sel_period = ...'
            not within (selected) data")
     } else if (sel_period[1] > sel_period[2] ) {
       stop("Last date before first date in 'sel_period = ...'!")
     } else {
       data <- dplyr::filter(data,
-                            data[var_date] >= sel_period[1] &
-                            data[var_date] <= sel_period[2])
+                            data["date_esmvis"] >= sel_period[1] &
+                            data["date_esmvis"] <= sel_period[2])
+      print(paste("Aantal rijen is:", nrow(data), "en sel_period[1]",sel_period[1],
+                  sel_period[2], "en", data[var_date][1], "en", var_date ))
     }
   }
 
@@ -213,10 +218,10 @@ data_processing <- function(data = NULL,
       warning("Did you forget 'type_vis = 'zoom'")
     }
     if ( is.null(sel_period) ) {
-      if ( sel_period_zoom[1] < min(data[var_date], na.rm = TRUE) ) {
+      if ( sel_period_zoom[1] < min(data["date_esmvis"], na.rm = TRUE) ) {
         stop("Specified first date not within (selected) data
              selected with 'sel_period_zoom = ...'")
-      } else if ( sel_period_zoom[2] > max(data[var_date], na.rm = TRUE) ) {
+      } else if ( sel_period_zoom[2] > max(data["date_esmvis"], na.rm = TRUE) ) {
         stop("Specified last date not within (selected) data
              selected with 'sel_period_zoom = ...'")
       } else if (sel_period_zoom[1] > sel_period_zoom[2] ) {
@@ -243,8 +248,8 @@ data_processing <- function(data = NULL,
 
   if ( type_vis %in% c("zoom", "combined") && !is.null(sel_period_zoom) ) {
     data_zoom <- dplyr::filter(data_l,
-                              data_l[var_date] >= sel_period_zoom[1] &
-                              data_l[var_date] <= sel_period_zoom[2])
+                              data_l["date_esmvis"] >= sel_period_zoom[1] &
+                              data_l["date_esmvis"] <= sel_period_zoom[2])
     return(list(data_l = data_l,
                 data_zoom = data_zoom))
   } else {
