@@ -20,7 +20,7 @@
 #' @return A list with one or two dataframes for visualisation.
 #' @importFrom tidyr gather
 #' @importFrom dplyr filter mutate group_by ungroup dense_rank
-#' @importFrom lubridate parse_date_time wday
+#' @importFrom lubridate parse_date_time wday as_date
 #' @importFrom magrittr %>%
 
 #' @export
@@ -150,6 +150,7 @@ data_processing <- function(data = NULL,
 
 
   # ADD WARNINGS
+  # SOMETHING GOES WRONG HERE
   library(tidyverse)
   if ( !is.null(interval) ) {
     if (inherits(data[["date_esmvis"]],
@@ -159,7 +160,7 @@ data_processing <- function(data = NULL,
         data$wday_esmvis <- lubridate::wday(data[["date_esmvis"]],
                                            label = TRUE, abbr = TRUE,
                                            week_start = 1)
-    } else if( is.numeric(data[[var_date]]) ) {
+    } else if( is.numeric(data[["date_esmvis"]]) ) {
       data$weekno_esmvis <- (( data[["date_esmvis"]] - 1 ) %/% 7) + 1
       data$dayno_esmvis <- data[["date_esmvis"]]
     }
@@ -177,6 +178,9 @@ data_processing <- function(data = NULL,
          'zoom', 'network', or 'barchart'")
   }
 
+  # Creates new dataset for selected period, but only
+  # if selected period is sensible
+
   if ( !is.null(sel_period) ) {
     if ( sel_period[1] < min(data[var_date], na.rm = TRUE) ) {
       stop("First date specified in 'sel_period = ...'
@@ -186,15 +190,24 @@ data_processing <- function(data = NULL,
            not within (selected) data")
     } else if (sel_period[1] > sel_period[2] ) {
       stop("Last date before first date in 'sel_period = ...'!")
+    } else {
+      data <- dplyr::filter(data,
+                            data[var_date] >= sel_period[1] &
+                            data[var_date] <= sel_period[2])
     }
   }
 
-  if ( !is.null(sel_period) ) {
-    data <- dplyr::filter(data,
-                          data[var_date] >= sel_period[1] &
-                          data[var_date] <= sel_period[2])
-  }
+  # if ( !is.null(sel_period) ) {
+  #   data <- dplyr::filter(data,
+  #                         data[var_date] >= sel_period[1] &
+  #                         data[var_date] <= sel_period[2])
+  # }
 
+
+  # CHECK WHAT GOES ON HERE
+
+  # See if dates for zoom fall inside either all dates
+  # or those dates selected previously with sel_period
   if ( !is.null(sel_period_zoom) ) {
     if ( !(type_vis %in% c("zoom", "combined")) ) {
       warning("Did you forget 'type_vis = 'zoom'")
@@ -210,7 +223,7 @@ data_processing <- function(data = NULL,
         stop("Last date before first date
              selected with 'sel_period_zoom = ...'!")
       }
-    } else {
+    } else if ( !is.null(sel_period) ) {
       if ( sel_period_zoom[1] < sel_period[1] ) {
         stop("Specified last date in 'sel_period_zoom = ...'not within period
              selected with 'sel_period = ...' ")

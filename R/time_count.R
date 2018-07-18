@@ -14,7 +14,7 @@ time_count <- function(dates, unit = "week") {
     cnt <- as.numeric(interval(min_date_mon, as_date(dates)),
                       unit = "day") %/% 7
   } else if(unit == "day") {
-    cnt <- as.numeric(interval(min_date, as_date(dates)), unit = "day")
+    cnt <- as.numeric(interval(min_date, lubridate::as_date(dates)), unit = "day")
   }
   return(cnt)
 }
