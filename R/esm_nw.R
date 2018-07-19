@@ -30,6 +30,7 @@ esm_nw <- function(data = NULL,
                    vars_event = NULL)
 {
 
+  # Create dataframe with layout of nodes in a circle
   no_nodes <- length(vars_meas)
   if (no_nodes == 2) {
     node_df <- data.frame(Name = vars_meas,
@@ -43,22 +44,19 @@ esm_nw <- function(data = NULL,
                           stringsAsFactors = FALSE)
   }
 
-  if (!is.null(vars_groups)) {
-   node_df$node_colours <-  vars_groups
-  }
-
-  #print(str(node_df))
-
+  # Combine coordinates nodes with data
   data <- dplyr::left_join(data, node_df, by = "Name")
-  #filter(data, !is.na(c(outcome)))
+
+  # Create abbreviations of node names
   data$abbr <- substr(data[[nodes]], 1, 4)
-  #print(sum(is.na(data$Score)))
+
+  # Create baseplot with grey background circles
   plot <- ggplot(data,
                  aes_string(x = "x", y = "y")) +
     geom_point(size = 10, colour = "lightgrey") +
     scale_x_continuous(expand = c(0.20, 0)) +
     scale_y_continuous(expand = c(0.20, 0)) +
-    coord_fixed() +
+    #coord_fixed() +
     facet_wrap(as.formula(paste("~", var_date))) +
     theme_minimal() +
     theme(
@@ -73,6 +71,7 @@ esm_nw <- function(data = NULL,
       #panel.border = element_rect(fill = NA, color = "grey50")
     )
 
+  # Create appropriate facetting grid
   if(!is.null(interval)) {
     if(interval == "week") {
       plot <- plot + facet_grid(
@@ -88,29 +87,33 @@ esm_nw <- function(data = NULL,
 #    }
   }
 
-
   #week_esmvis, day_esmvis, ind_int_esmvis
 
-  if ( is.null(vars_groups) ) {
-      plot <- plot + geom_point(aes_string(size = outcome, colour = nodes)) +
-        #scale_size_continuous(limits = c(1, 10))
-        scale_radius(range = c(1,10))# CHECK HOW THIS WORKS
-  } else {
+  # Add coloured circles depending on score
+  plot <- plot +
+    geom_point(aes_string(size = outcome, colour = nodes)) +
+    scale_radius(range = c(1,10))
+
+  # Add manual colouring scheme when provided
+  if ( !is.na(vars_groups) ) {
     names(vars_groups) <- vars_meas
-    plot <- plot + geom_point(aes_string(size = outcome, colour = nodes)) +
-      scale_colour_manual(values = vars_groups) +
-      #scale_colour_identity() +
-      scale_radius(range = c(1,10))
-      #scale_size_continuous(limits = c(1, 10)) # CHECK HOW THIS WORKS
+    plot <- plot + scale_colour_manual(values = vars_groups)
   }
 
-  plot <- plot + geom_text(aes(label = abbr), colour = "white") +
+  # Add variable label in circle
+  plot <- plot +
+    geom_text(aes(label = abbr), colour = "white") +
     guides(colour = FALSE, size = FALSE)
 
-  if ( !is.null(vis_options[["axis_limits"]]) ) {
-    plot <- plot +
-      scale_y_continuous(limits = vis_options[["axis_limits"]])
-  }
+  # plot <- plot +
+  #   geom_text(aes(label = abbr), colour = "white") +
+  #   guides(colour = FALSE, size = FALSE)
+
+  # THIS WORKS MUCH LESS WELL WITH NETWORKS
+  # if ( !is.null(vis_options[["axis_limits"]]) ) {
+  #   plot <- plot +
+  #     scale_y_continuous(limits = vis_options[["axis_limits"]])
+  # }
 
   if( !is.null(vars_event) ) {
     #print((data))

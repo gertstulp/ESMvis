@@ -62,6 +62,7 @@ esm_ts <- function(data = NULL,
       labs(fill = "Experience")
   }
 
+  # DIT KAN VEEL EFFICIENTER!!!
   if ( length(vis_options) == 0 ) {
     plot <- plot + geom_smooth(se = FALSE, kernel = 0.25)
   } else if ( length(vis_options) != 0 ) {
@@ -89,7 +90,7 @@ esm_ts <- function(data = NULL,
     }
     if ( !is.null(vis_options[["axis_limits"]]) ) {
       plot <- plot +
-        scale_y_continuous(limits = vis_options[["axis_limits"]])
+        coord_cartesian(ylim = vis_options[["axis_limits"]])
     }
   }
 
