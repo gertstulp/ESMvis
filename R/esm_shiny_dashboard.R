@@ -228,4 +228,4 @@ esm_shiny <- function( input_df = NA, df_label = NA ) {
   shinyApp(ui, server)
 }
 # esm_shiny(esm_data1)
-esm_shiny(data_massi1)
+#esm_shiny(data_massi1)
